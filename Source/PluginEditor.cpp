@@ -16,117 +16,242 @@ using namespace juce;
 MultiBandCompressorAudioProcessorEditor::MultiBandCompressorAudioProcessorEditor (MultiBandCompressorAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+
+    buildElements();
+    setSize(1400, 650);
+    startTimer(100);
+}
+
+MultiBandCompressorAudioProcessorEditor::~MultiBandCompressorAudioProcessorEditor()
+{
+    buttonLowCompressorState = nullptr;
+    buttonMidCompressorState = nullptr;
+    buttonHighCompressorState = nullptr;
+}
+
+//==============================================================================
+void MultiBandCompressorAudioProcessorEditor::paint (juce::Graphics& g)
+{
+    Image background = ImageCache::getFromMemory(BinaryData::background_png, BinaryData::background_pngSize);
+    g.drawImageAt(background, 0, 0);
+
+    //Draw the semi-transparent rectangle around components
+    const Rectangle<float> area(10, 10, 1380, 630);
+    g.setColour(Colours::ghostwhite);
+    g.drawRoundedRectangle(area, 5.0f, 3.0f);
+
+    //Draw background for rectangle
+    g.setColour(Colours::black);
+    g.setOpacity(0.80f);
+    g.fillRoundedRectangle(area, 5.0f);
+
+    // Draw text labels for each component
+    // Title
+    g.setColour(Colours::white);
+    g.setFont(35.0f);
+    g.drawFittedText("Multi-Band Compressor", getWidth() / 2 - 125, 10, 250, 55, Justification::centred, 1);
+
+    // Others
+    g.setFont(18.0f);
+
+    // Knee Width and Overall Gain
+    g.drawText("Low Cutoff",  getWidth() / 2 - 390,    110, 200, 50, Justification::centred, false);
+    g.drawText("Frequency",   getWidth() / 2 - 390,    130, 200, 50, Justification::centred, false);
+    g.drawText("High Cutoff", getWidth() / 2 + 180,    110, 200, 50, Justification::centred, false);
+    g.drawText("Frequency",   getWidth() / 2 + 180,    130, 200, 50, Justification::centred, false);
+
+    // Knee Width and Overall Gain
+    g.drawText("Knee Width",    getWidth() - 300, getHeight() / 2 + 140,     200, 50, Justification::centred, false);
+    g.drawText("Overall Gain",  getWidth() - 300, getHeight() / 2 + 240,    200, 50, Justification::centred, false);
+    
+}
+
+void MultiBandCompressorAudioProcessorEditor::resized()
+{
+    // Cutoff Frequency Sliders
+    sliderLowCutoff.setBounds   (getWidth() / 2 - 250,  40, 220, 220);
+    sliderHighCutoff.setBounds  (getWidth() / 2 + 20,   40, 220, 220);
+
+    // Compressor State Buttons
+    (*buttonLowCompressorState).setBounds   (50,    getHeight() / 2 - 25,  120, 60);
+    (*buttonMidCompressorState).setBounds   (50,    getHeight() / 2 + 100,  120, 60);
+    (*buttonHighCompressorState).setBounds  (50,    getHeight() / 2 + 225, 120, 60);
+
+    // Threshold Sliders
+    sliderLowThreshold.setBounds    (200, getHeight() / 2 - 50,     100, 100);
+    sliderMidThreshold.setBounds    (200, getHeight() / 2 + 75,     100, 100);
+    sliderHighThreshold.setBounds   (200, getHeight() / 2 + 200,    100, 100);
+
+    //// Low Band Knobs
+    //sliderLowRatio.setBounds(100, 260, 80, 64);
+    //sliderLowAttack.setBounds(100, 340, 80, 64);
+    //sliderLowRelease.setBounds(100, 420, 80, 64);
+    //sliderLowGain.setBounds(100, 500, 80, 64);
+
+    //// Mid Band Knobs
+    //sliderMidRatio.setBounds(250, 260, 80, 64);
+    //sliderMidAttack.setBounds(250, 340, 80, 64);
+    //sliderMidRelease.setBounds(250, 420, 80, 64);
+    //sliderMidGain.setBounds(250, 500, 80, 64);
+
+    //// High Band Knobs
+    //sliderHighRatio.setBounds(400, 260, 80, 64);
+    //sliderHighAttack.setBounds(400, 340, 80, 64);
+    //sliderHighRelease.setBounds(400, 420, 80, 64);
+    //sliderHighGain.setBounds(400, 500, 80, 64);
+
+    // Knee Width and Overall Gain
+    sliderKneeWidth.setBounds       (getWidth() - 295,  getHeight() / 2 - 40,   185, 185);
+    sliderOverallGain.setBounds     (getWidth() - 350,  getHeight() / 2 + 200,   300, 50);
+}
+
+void MultiBandCompressorAudioProcessorEditor::sliderValueChanged(Slider* sliderMoved)
+{}
+
+void MultiBandCompressorAudioProcessorEditor::buttonClicked(Button* buttonThatWasClicked)
+{
+    if (buttonThatWasClicked == buttonLowCompressorState)
+        audioProcessor.setLowCompressorState((*buttonLowCompressorState).getToggleState());
+    else if (buttonThatWasClicked == buttonMidCompressorState)
+        audioProcessor.setMidCompressorState((*buttonMidCompressorState).getToggleState());
+    else if (buttonThatWasClicked == buttonHighCompressorState)
+        audioProcessor.setHighCompressorState((*buttonHighCompressorState).getToggleState());
+}
+
+void MultiBandCompressorAudioProcessorEditor::timerCallback()
+{
+    sliderOverallGain.setValue  (audioProcessor.getOverallGain());
+    sliderKneeWidth.setValue    (audioProcessor.getKneeWidth());
+
+    sliderLowCutoff.setValue    (audioProcessor.getLowCutoff());
+    sliderHighCutoff.setValue   (audioProcessor.getHighCutoff());
+
+    sliderLowGain.setValue      (audioProcessor.getLowGain());
+    sliderLowThreshold.setValue (audioProcessor.getLowThreshold());
+    sliderLowRatio.setValue     (audioProcessor.getLowRatio());
+    sliderLowAttack.setValue    (audioProcessor.getLowAttack());
+    sliderLowRelease.setValue   (audioProcessor.getLowRelease());
+
+    sliderMidGain.setValue      (audioProcessor.getMidGain());
+    sliderMidThreshold.setValue (audioProcessor.getMidThreshold());
+    sliderMidRatio.setValue     (audioProcessor.getMidRatio());
+    sliderMidAttack.setValue    (audioProcessor.getMidAttack());
+    sliderMidRelease.setValue   (audioProcessor.getMidRelease());
+
+    sliderHighGain.setValue     (audioProcessor.getHighGain());
+    sliderHighThreshold.setValue(audioProcessor.getHighThreshold());
+    sliderHighRatio.setValue    (audioProcessor.getHighRatio());
+    sliderHighAttack.setValue   (audioProcessor.getHighAttack());
+    sliderHighRelease.setValue  (audioProcessor.getHighRelease());
+
+    (*buttonLowCompressorState).setToggleState  (audioProcessor.getLowCompressorState(), dontSendNotification);
+    (*buttonMidCompressorState).setToggleState  (audioProcessor.getMidCompressorState(), dontSendNotification);
+    (*buttonHighCompressorState).setToggleState (audioProcessor.getHighCompressorState(), dontSendNotification);
+    
+}
+
+void MultiBandCompressorAudioProcessorEditor::buildElements()
+{
+    // Knee Width and Overall Gain
+    kneeWidthVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "kneeWidth", sliderKneeWidth);
+    sliderKneeWidth.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderKneeWidth.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderKneeWidth.setRange(5.0f, 10.0f); addAndMakeVisible(&sliderKneeWidth);
+
+    overallGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "overallGain", sliderOverallGain);
+    sliderOverallGain.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    sliderOverallGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderOverallGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderOverallGain);
 
     // Low Band Knobs
-    addAndMakeVisible(sliderLowThreshold = new Slider("Low Gain Threshold"));
-    (*sliderLowThreshold).setRange(-80, 0, 0);
-    (*sliderLowThreshold).setSliderStyle(Slider::LinearVertical);
-    (*sliderLowThreshold).setTextBoxStyle(Slider::TextBoxAbove, false, 40, 20);
-    (*sliderLowThreshold).addListener(this);
+    lowThresholdVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowThresh", sliderLowThreshold);
+    sliderLowThreshold.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderLowThreshold.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderLowThreshold.setRange(-80.0f, 0.0f); addAndMakeVisible(&sliderLowThreshold);
 
-    addAndMakeVisible(sliderLowRatio = new Slider("Low Ratio Slider"));
-    (*sliderLowRatio).setRange(1, 10, 0);
-    (*sliderLowRatio).setSliderStyle(Slider::Rotary);
-    (*sliderLowRatio).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderLowRatio).addListener(this);
+    lowRatioVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowRatio", sliderLowRatio);
+    sliderLowRatio.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderLowRatio.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderLowRatio.setRange(1.0f, 10.0f); addAndMakeVisible(&sliderLowRatio);
 
-    addAndMakeVisible(sliderLowAttack = new Slider("Low Attack Slider"));
-    (*sliderLowAttack).setRange(5, 100, 0);
-    (*sliderLowAttack).setSliderStyle(Slider::Rotary);
-    (*sliderLowAttack).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderLowAttack).addListener(this);
+    lowAttackVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowAttack", sliderLowAttack);
+    sliderLowAttack.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderLowAttack.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderLowAttack.setRange(5.0f, 100.0f); addAndMakeVisible(&sliderLowAttack);
 
-    addAndMakeVisible(sliderLowRelease = new Slider("Low Release Slider"));
-    (*sliderLowRelease).setRange(5, 100, 0);
-    (*sliderLowRelease).setSliderStyle(Slider::Rotary);
-    (*sliderLowRelease).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderLowRelease).addListener(this);
+    lowReleaseVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowRelease", sliderLowRelease);
+    sliderLowRelease.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderLowRelease.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderLowRelease.setRange(5.0f, 100.0f); addAndMakeVisible(&sliderLowRelease);
 
-    addAndMakeVisible(sliderLowGain = new Slider("Low Gain Slider"));
-    (*sliderLowGain).setRange(-80, 40, 0);
-    (*sliderLowGain).setSliderStyle(Slider::Rotary);
-    (*sliderLowGain).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderLowGain).addListener(this);
+    lowGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowGain", sliderLowGain);
+    sliderLowGain.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderLowGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderLowGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderLowGain);
 
     // Mid Band Knobs
-    addAndMakeVisible(sliderMidThreshold = new Slider("Mid Gain Threshold"));
-    (*sliderMidThreshold).setRange(-80, 0, 0);
-    (*sliderMidThreshold).setSliderStyle(Slider::LinearVertical);
-    (*sliderMidThreshold).setTextBoxStyle(Slider::TextBoxAbove, false, 40, 20);
-    (*sliderMidThreshold).addListener(this);
+    midThresholdVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midThresh", sliderMidThreshold);
+    sliderMidThreshold.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderMidThreshold.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderMidThreshold.setRange(-80.0f, 0.0f); addAndMakeVisible(&sliderMidThreshold);
 
-    addAndMakeVisible(sliderMidRatio = new Slider("Mid Ratio Slider"));
-    (*sliderMidRatio).setRange(1, 10, 0);
-    (*sliderMidRatio).setSliderStyle(Slider::Rotary);
-    (*sliderMidRatio).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderMidRatio).addListener(this);
+    midRatioVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midRatio", sliderMidRatio);
+    sliderMidRatio.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderMidRatio.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderMidRatio.setRange(1.0f, 10.0f); addAndMakeVisible(&sliderMidRatio);
 
-    addAndMakeVisible(sliderMidAttack = new Slider("Mid Attack Slider"));
-    (*sliderMidAttack).setRange(5, 100, 0);
-    (*sliderMidAttack).setSliderStyle(Slider::Rotary);
-    (*sliderMidAttack).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderMidAttack).addListener(this);
+    midAttackVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midAttack", sliderMidAttack);
+    sliderMidAttack.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderMidAttack.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderMidAttack.setRange(5.0f, 100.0f); addAndMakeVisible(&sliderMidAttack);
 
-    addAndMakeVisible(sliderMidRelease = new Slider("Mid Release Slider"));
-    (*sliderMidRelease).setRange(5, 100, 0);
-    (*sliderMidRelease).setSliderStyle(Slider::Rotary);
-    (*sliderMidRelease).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderMidRelease).addListener(this);
+    midReleaseVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midRelease", sliderMidRelease);
+    sliderMidRelease.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderMidRelease.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderMidRelease.setRange(5.0f, 100.0f); addAndMakeVisible(&sliderMidRelease);
 
-    addAndMakeVisible(sliderMidGain = new Slider("Mid Gain Slider"));
-    (*sliderMidGain).setRange(-80, 40, 0);
-    (*sliderMidGain).setSliderStyle(Slider::Rotary);
-    (*sliderMidGain).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderMidGain).addListener(this);
+    midGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midGain", sliderMidGain);
+    sliderMidGain.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderMidGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderMidGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderMidGain);
 
     // High Band Knobs
-    addAndMakeVisible(sliderHighThreshold = new Slider("High Gain Threshold"));
-    (*sliderHighThreshold).setRange(-80, 0, 0);
-    (*sliderHighThreshold).setSliderStyle(Slider::LinearVertical);
-    (*sliderHighThreshold).setTextBoxStyle(Slider::TextBoxAbove, false, 40, 20);
-    (*sliderHighThreshold).addListener(this);
+    highThresholdVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highThresh", sliderHighThreshold);
+    sliderHighThreshold.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderHighThreshold.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderHighThreshold.setRange(-80.0f, 0.0f); addAndMakeVisible(&sliderHighThreshold);
 
-    addAndMakeVisible(sliderHighRatio = new Slider("High Ratio Slider"));
-    (*sliderHighRatio).setRange(1, 10, 0);
-    (*sliderHighRatio).setSliderStyle(Slider::Rotary);
-    (*sliderHighRatio).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderHighRatio).addListener(this);
+    highRatioVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highRatio", sliderHighRatio);
+    sliderHighRatio.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderHighRatio.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderHighRatio.setRange(1.0f, 10.0f); addAndMakeVisible(&sliderHighRatio);
 
-    addAndMakeVisible(sliderHighAttack = new Slider("High Attack Slider"));
-    (*sliderHighAttack).setRange(5, 100, 0);
-    (*sliderHighAttack).setSliderStyle(Slider::Rotary);
-    (*sliderHighAttack).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderHighAttack).addListener(this);
+    highAttackVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highAttack", sliderHighAttack);
+    sliderHighAttack.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderHighAttack.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderHighAttack.setRange(5.0f, 100.0f); addAndMakeVisible(&sliderHighAttack);
 
-    addAndMakeVisible(sliderHighRelease = new Slider("High Release Slider"));
-    (*sliderHighRelease).setRange(5, 100, 0);
-    (*sliderHighRelease).setSliderStyle(Slider::Rotary);
-    (*sliderHighRelease).setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
-    (*sliderHighRelease).addListener(this);
+    highReleaseVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highRelease", sliderHighRelease);
+    sliderHighRelease.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderHighRelease.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderHighRelease.setRange(5.0f, 100.0f); addAndMakeVisible(&sliderHighRelease);
 
-    addAndMakeVisible(sliderHighGain = new Slider("High Gain Slider"));
-    (*sliderHighGain).setRange(-80, 40, 0);
-    (*sliderHighGain).setSliderStyle(Slider::Rotary);
-    (*sliderHighGain).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderHighGain).addListener(this);
+    highGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highGain", sliderHighGain);
+    sliderHighGain.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderHighGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
+    sliderHighGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderHighGain);
 
     // Low Cutoff Frequency Slider
-    addAndMakeVisible(sliderLowCutoff = new Slider("Low Cutoff"));
-    (*sliderLowCutoff).setRange(150, 600, 0);
-    (*sliderLowCutoff).setSliderStyle(Slider::Rotary);
-    (*sliderLowCutoff).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderLowCutoff).addListener(this);
-    (*sliderLowCutoff).setSkewFactor(2);
+    lowCutOffVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowCutOff", sliderLowCutoff);
+    sliderLowCutoff.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderLowCutoff.setTextBoxStyle(Slider::TextBoxRight, false, 70, 20);
+    sliderLowCutoff.setRange(150.0f, 600.0f); sliderLowCutoff.setSkewFactor(2); addAndMakeVisible(&sliderLowCutoff);
 
     // High Cutoff Frequency Slider
-    addAndMakeVisible(sliderHighCutoff = new Slider("High Cutoff"));
-    (*sliderHighCutoff).setRange(1000, 4000, 0);
-    (*sliderHighCutoff).setSliderStyle(Slider::Rotary);
-    (*sliderHighCutoff).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderHighCutoff).addListener(this);
-    (*sliderHighCutoff).setSkewFactor(2);
+    highCutOffVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highCutOff", sliderHighCutoff);
+    sliderHighCutoff.setSliderStyle(Slider::SliderStyle::Rotary);
+    sliderHighCutoff.setTextBoxStyle(Slider::TextBoxLeft, false, 70, 20);
+    sliderHighCutoff.setRange(1000.0f, 4000.0f); sliderHighCutoff.setSkewFactor(2); addAndMakeVisible(&sliderHighCutoff);
 
     // Compressor State Buttons
     addAndMakeVisible(buttonLowCompressorState = new TextButton("Low Compressor"));
@@ -149,271 +274,8 @@ MultiBandCompressorAudioProcessorEditor::MultiBandCompressorAudioProcessorEditor
     (*buttonHighCompressorState).setColour(TextButton::textColourOnId, Colours::black);
     (*buttonHighCompressorState).setColour(TextButton::textColourOffId, Colours::white);
     (*buttonHighCompressorState).addListener(this);
-
-    (*buttonHighCompressorState).setClickingTogglesState(true);
-    (*buttonMidCompressorState).setClickingTogglesState(true);
+    
     (*buttonLowCompressorState).setClickingTogglesState(true);
-
-    // Labels
-    addAndMakeVisible(cutoffLabel = new Label("Cutoff", TRANS("Cutoff:")));
-    (*cutoffLabel).setFont(Font(15.00f, Font::plain));
-    (*cutoffLabel).setJustificationType(Justification::centredLeft);
-    (*cutoffLabel).setEditable(false, false, false);
-    (*cutoffLabel).setColour(Label::textColourId, Colours::white);
-
-    addAndMakeVisible(thresholdLabel = new Label("Threshold", TRANS("Threshold:")));
-    (*thresholdLabel).setFont(Font(15.00f, Font::plain));
-    (*thresholdLabel).setJustificationType(Justification::centredLeft);
-    (*thresholdLabel).setEditable(false, false, false);
-    (*thresholdLabel).setColour(Label::textColourId, Colours::white);
-
-    addAndMakeVisible(ratioLabel = new Label("Ratio", TRANS("Ratio:")));
-    (*ratioLabel).setFont(Font(15.00f, Font::plain));
-    (*ratioLabel).setJustificationType(Justification::centredLeft);
-    (*ratioLabel).setEditable(false, false, false);
-    (*ratioLabel).setColour(Label::textColourId, Colours::white);
-
-    addAndMakeVisible(attackLabel = new Label("Attack", TRANS("Attack:")));
-    (*attackLabel).setFont(Font(15.00f, Font::plain));
-    (*attackLabel).setJustificationType(Justification::centredLeft);
-    (*attackLabel).setEditable(false, false, false);
-    (*attackLabel).setColour(Label::textColourId, Colours::white);
-
-    addAndMakeVisible(releaseLabel = new Label("Release", TRANS("Release:")));
-    (*releaseLabel).setFont(Font(15.00f, Font::plain));
-    (*releaseLabel).setJustificationType(Justification::centredLeft);
-    (*releaseLabel).setEditable(false, false, false);
-    (*releaseLabel).setColour(Label::textColourId, Colours::white);
-
-    addAndMakeVisible(gainLabel = new Label("Gain", TRANS("Gain:")));
-    (*gainLabel).setFont(Font(15.00f, Font::plain));
-    (*gainLabel).setJustificationType(Justification::centredLeft);
-    (*gainLabel).setEditable(false, false, false);
-    (*gainLabel).setColour(Label::textColourId, Colours::white);
-
-    addAndMakeVisible(sliderKneeWidth = new Slider("Knee Width"));
-    (*sliderKneeWidth).setRange(0, 10, 0);
-    (*sliderKneeWidth).setSliderStyle(Slider::Rotary);
-    (*sliderKneeWidth).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderKneeWidth).addListener(this);
-
-    addAndMakeVisible(sliderOverallGain = new Slider("Overall Gain"));
-    (*sliderOverallGain).setRange(-40, 10, 0);
-    (*sliderOverallGain).setSliderStyle(Slider::Rotary);
-    (*sliderOverallGain).setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    (*sliderOverallGain).addListener(this);
-
-    addAndMakeVisible(kneeWidthLabel = new Label("Kneewidth", TRANS("Knee Width:")));
-    (*kneeWidthLabel).setFont(Font(15.00f, Font::plain));
-    (*kneeWidthLabel).setJustificationType(Justification::centredLeft);
-    (*kneeWidthLabel).setEditable(false, false, false);
-    (*kneeWidthLabel).setColour(TextEditor::textColourId, Colours::black);
-    (*kneeWidthLabel).setColour(TextEditor::backgroundColourId, Colour(0x00000000));
-
-    addAndMakeVisible(overallGainLabel = new Label("OverallGain", TRANS("Overall Gain:")));
-    (*overallGainLabel).setFont(Font(15.00f, Font::plain));
-    (*overallGainLabel).setJustificationType(Justification::centredLeft);
-    (*overallGainLabel).setEditable(false, false, false);
-    (*overallGainLabel).setColour(Label::textColourId, Colours::white);
-
-    setSize(800, 600);
-    startTimer(100);
-}
-
-MultiBandCompressorAudioProcessorEditor::~MultiBandCompressorAudioProcessorEditor()
-{
-    sliderLowCutoff = nullptr;
-    sliderHighCutoff = nullptr;
-
-    buttonLowCompressorState = nullptr;
-    buttonMidCompressorState = nullptr;
-    buttonHighCompressorState = nullptr;
-
-    sliderLowThreshold = nullptr;
-    sliderLowRatio = nullptr;
-    sliderLowAttack = nullptr;
-    sliderLowRelease = nullptr;
-    sliderLowGain = nullptr;
-
-    sliderMidThreshold = nullptr;
-    sliderMidRatio = nullptr;
-    sliderMidAttack = nullptr;
-    sliderMidRelease = nullptr;
-    sliderMidGain = nullptr;
-
-    sliderHighThreshold = nullptr;
-    sliderHighRatio = nullptr;
-    sliderHighAttack = nullptr;
-    sliderHighRelease = nullptr;
-    sliderHighGain = nullptr;
-
-    cutoffLabel = nullptr;
-    thresholdLabel = nullptr;
-    ratioLabel = nullptr;
-    attackLabel = nullptr;
-    releaseLabel = nullptr;
-    gainLabel = nullptr;
-
-    kneeWidthLabel = nullptr;
-    sliderKneeWidth = nullptr;
-
-    overallGainLabel = nullptr;
-    sliderOverallGain = nullptr;
-}
-
-//==============================================================================
-void MultiBandCompressorAudioProcessorEditor::paint (juce::Graphics& g)
-{
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll(Colours::black);
-    g.setColour(Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText("Multiband Compressor", getWidth() / 2 - 75, 0, 150, 20, Justification::centred, 1);
-}
-
-void MultiBandCompressorAudioProcessorEditor::resized()
-{
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-
-    // Cutoff Frequency Sliders
-    (*sliderLowCutoff).setBounds(175, 31, 56, 64);
-    (*sliderHighCutoff).setBounds(325, 31, 56, 64);
-
-    // Compressor State Buttons
-    (*buttonLowCompressorState).setBounds(110, 98, 50, 24);
-    (*buttonMidCompressorState).setBounds(260, 98, 50, 24);
-    (*buttonHighCompressorState).setBounds(410, 98, 50, 24);
-
-    // Threshold Sliders
-    (*sliderLowThreshold).setBounds(115, 128, 40, 112);
-    (*sliderMidThreshold).setBounds(265, 128, 40, 112);
-    (*sliderHighThreshold).setBounds(415, 128, 40, 112);
-
-    // Labels
-    (*cutoffLabel).setBounds(16, 60, 88, 24);
-    (*thresholdLabel).setBounds(16, 160, 88, 24);
-    (*ratioLabel).setBounds(16, 280, 48, 24);
-    (*attackLabel).setBounds(16, 360, 64, 24);
-    (*releaseLabel).setBounds(16, 440, 72, 24);
-    (*gainLabel).setBounds(16, 520, 48, 24);
-
-    // Low Band Knobs
-    (*sliderLowRatio).setBounds(100, 260, 80, 64);
-    (*sliderLowAttack).setBounds(100, 340, 80, 64);
-    (*sliderLowRelease).setBounds(100, 420, 80, 64);
-    (*sliderLowGain).setBounds(100, 500, 80, 64);
-
-    // Mid Band Knobs
-    (*sliderMidRatio).setBounds(250, 260, 80, 64);
-    (*sliderMidAttack).setBounds(250, 340, 80, 64);
-    (*sliderMidRelease).setBounds(250, 420, 80, 64);
-    (*sliderMidGain).setBounds(250, 500, 80, 64);
-
-    // High Band Knobs
-    (*sliderHighRatio).setBounds(400, 260, 80, 64);
-    (*sliderHighAttack).setBounds(400, 340, 80, 64);
-    (*sliderHighRelease).setBounds(400, 420, 80, 64);
-    (*sliderHighGain).setBounds(400, 500, 80, 64);
-
-    // Knee Width
-    (*kneeWidthLabel).setBounds(500, 360, 88, 24);
-    (*sliderKneeWidth).setBounds(600, 340, 80, 64);
-
-    // Overall Gain
-    (*overallGainLabel).setBounds(500, 440, 88, 24);
-    (*sliderOverallGain).setBounds(600, 420, 80, 64);
-}
-
-void MultiBandCompressorAudioProcessorEditor::sliderValueChanged(Slider* sliderThatWasMoved)
-{
-    // Slider Changed Values for Low Compressor
-    if (sliderThatWasMoved == sliderLowThreshold)
-        audioProcessor.setLowThreshold((*sliderLowThreshold).getValue());
-    else if (sliderThatWasMoved == sliderLowRatio)
-        audioProcessor.setLowRatio((*sliderLowRatio).getValue());
-    else if (sliderThatWasMoved == sliderLowAttack)
-        audioProcessor.setLowAttack((*sliderLowAttack).getValue());
-    else if (sliderThatWasMoved == sliderLowRelease)
-        audioProcessor.setLowRelease((*sliderLowRelease).getValue());
-    else if (sliderThatWasMoved == sliderLowGain)
-        audioProcessor.setLowGain((*sliderLowGain).getValue());
-
-    // Slider Changed Values for Mid Compressor
-    else if (sliderThatWasMoved == sliderMidThreshold)
-        audioProcessor.setMidThreshold((*sliderMidThreshold).getValue());
-    else if (sliderThatWasMoved == sliderMidRatio)
-        audioProcessor.setMidRatio((*sliderMidRatio).getValue());
-    else if (sliderThatWasMoved == sliderMidAttack)
-        audioProcessor.setMidAttack((*sliderMidAttack).getValue());
-    else if (sliderThatWasMoved == sliderMidRelease)
-        audioProcessor.setMidRelease((*sliderMidRelease).getValue());
-    else if (sliderThatWasMoved == sliderMidGain)
-        audioProcessor.setMidGain((*sliderMidGain).getValue());
-
-    // Slider Changed Values for High Compressor
-    else if (sliderThatWasMoved == sliderHighThreshold)
-        audioProcessor.setHighThreshold((*sliderHighThreshold).getValue());
-    else if (sliderThatWasMoved == sliderHighRatio)
-        audioProcessor.setHighRatio((*sliderHighRatio).getValue());
-    else if (sliderThatWasMoved == sliderHighAttack)
-        audioProcessor.setHighAttack((*sliderHighAttack).getValue());
-    else if (sliderThatWasMoved == sliderHighRelease)
-        audioProcessor.setHighRelease((*sliderHighRelease).getValue());
-    else if (sliderThatWasMoved == sliderHighGain)
-        audioProcessor.setHighGain((*sliderHighGain).getValue());
-    else if (sliderThatWasMoved == sliderKneeWidth)
-        audioProcessor.setKneeWidth((*sliderKneeWidth).getValue());
-    else if (sliderThatWasMoved == sliderOverallGain)
-        audioProcessor.setOverallGain((*sliderOverallGain).getValue());
-
-    // Slider Changed Values for Cut Off Frequencies
-    else if (sliderThatWasMoved == sliderLowCutoff)
-        audioProcessor.setLowCutoff((*sliderLowCutoff).getValue());
-    else if (sliderThatWasMoved == sliderHighCutoff)
-        audioProcessor.setHighCutoff((*sliderHighCutoff).getValue());
-}
-
-void MultiBandCompressorAudioProcessorEditor::buttonClicked(Button* buttonThatWasClicked)
-{
-    if (buttonThatWasClicked == buttonLowCompressorState)
-        audioProcessor.setLowCompressorState((*buttonLowCompressorState).getToggleState());
-    else if (buttonThatWasClicked == buttonMidCompressorState)
-        audioProcessor.setMidCompressorState((*buttonMidCompressorState).getToggleState());
-    else if (buttonThatWasClicked == buttonHighCompressorState)
-        audioProcessor.setHighCompressorState((*buttonHighCompressorState).getToggleState());
-}
-
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-void MultiBandCompressorAudioProcessorEditor::timerCallback() {
-
-    (*sliderOverallGain).setValue(audioProcessor.getOverallGain());
-    (*sliderKneeWidth).setValue(audioProcessor.getKneeWidth());
-
-    (*sliderLowGain).setValue(audioProcessor.getLowGain());
-    (*sliderLowThreshold).setValue(audioProcessor.getLowThreshold());
-    (*sliderLowRatio).setValue(audioProcessor.getLowRatio());
-    (*sliderLowAttack).setValue(audioProcessor.getLowAttack());
-    (*sliderLowRelease).setValue(audioProcessor.getLowRelease());
-
-    (*sliderMidGain).setValue(audioProcessor.getMidGain());
-    (*sliderMidThreshold).setValue(audioProcessor.getMidThreshold());
-    (*sliderMidRatio).setValue(audioProcessor.getMidRatio());
-    (*sliderMidAttack).setValue(audioProcessor.getMidAttack());
-    (*sliderMidRelease).setValue(audioProcessor.getMidRelease());
-
-    (*sliderHighGain).setValue(audioProcessor.getHighGain());
-    (*sliderHighThreshold).setValue(audioProcessor.getHighThreshold());
-    (*sliderHighRatio).setValue(audioProcessor.getHighRatio());
-    (*sliderHighAttack).setValue(audioProcessor.getHighAttack());
-    (*sliderHighRelease).setValue(audioProcessor.getHighRelease());
-
-    (*buttonLowCompressorState).setToggleState(audioProcessor.getLowCompressorState(), dontSendNotification);
-    (*buttonMidCompressorState).setToggleState(audioProcessor.getMidCompressorState(), dontSendNotification);
-    (*buttonHighCompressorState).setToggleState(audioProcessor.getHighCompressorState(), dontSendNotification);
-
-    (*sliderLowCutoff).setValue(audioProcessor.getLowCutoff());
-    (*sliderHighCutoff).setValue(audioProcessor.getHighCutoff());
-
+    (*buttonMidCompressorState).setClickingTogglesState(true);
+    (*buttonHighCompressorState).setClickingTogglesState(true);
 }

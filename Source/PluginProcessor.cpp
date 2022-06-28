@@ -22,46 +22,13 @@ MultiBandCompressorAudioProcessor::MultiBandCompressorAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), parameters(*this, nullptr, "Parameter", createParameters())
 #endif
 {
-    // Default Low Band Values
-    pLowGain = 1.0;
-    pLowThreshold = 0.0;
-    pLowRatio = 1.0;
-    pLowAttack = 5.0;
-    pLowRelease = 5.0;
-
-    // Default Mid Band Values
-    pMidGain = 1.0;
-    pMidThreshold = 0.0;
-    pMidRatio = 1.0;
-    pMidAttack = 5.0;
-    pMidRelease = 5.0;
-
-    // Default High Band Values
-    pHighGain = 1.0;
-    pHighThreshold = 0.0;
-    pHighRatio = 1.0;
-    pHighAttack = 5.0;
-    pHighRelease = 5.0;
-
     // Default Compressor States
     pLowCompressorState = 1;
     pMidCompressorState = 1;
     pHighCompressorState = 1;
-
-    pOverallGain = 10.0;
-    pKneeWidth = 0.0;
-
-    // Default Cutoff Frequencies
-    pLowPassCutoff = 500;
-    pHighPassCutoff = 3000;
-
-    // Initialise the Compressors
-    lowCompressor = new Compressor;
-    midCompressor = new Compressor;
-    highCompressor = new Compressor;
 }
 
 MultiBandCompressorAudioProcessor::~MultiBandCompressorAudioProcessor()
@@ -140,38 +107,38 @@ void MultiBandCompressorAudioProcessor::prepareToPlay (double sampleRate, int sa
     // Calculate Filter Coefficients
     //==============================
     // First Left Channel Filters
-    lowBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // First Right Channel Filters
-    lowBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // Second Left Channel Filters
-    lowBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // Second Right Channel Filters
-    lowBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // Prepare the Compressors
-    (*lowCompressor).prepareToPlay(sampleRate, samplesPerBlock, getTotalNumInputChannels());
-    (*midCompressor).prepareToPlay(sampleRate, samplesPerBlock, getTotalNumInputChannels());
-    (*highCompressor).prepareToPlay(sampleRate, samplesPerBlock, getTotalNumInputChannels());
+    lowCompressor.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumInputChannels());
+    midCompressor.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumInputChannels());
+    highCompressor.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumInputChannels());
 
     // Initialise the Compressor Parameters
-    (*lowCompressor).setParameters(pLowRatio, pLowThreshold, pLowAttack, pLowRelease, pLowGain, pKneeWidth);
-    (*midCompressor).setParameters(pMidRatio, pMidThreshold, pMidAttack, pMidRelease, pMidGain, pKneeWidth);
-    (*highCompressor).setParameters(pHighRatio, pHighThreshold, pHighAttack, pHighRelease, pHighGain, pKneeWidth);
+    lowCompressor.setParameters(getLowRatio(), getLowThreshold(), getLowAttack(), getLowRelease(), getLowGain(), getKneeWidth());
+    midCompressor.setParameters(getMidRatio(), getMidThreshold(), getMidAttack(), getMidRelease(), getMidGain(), getKneeWidth());
+    highCompressor.setParameters(getHighRatio(), getHighThreshold(), getHighAttack(), getHighRelease(), getHighGain(), getKneeWidth());
 }
 
 void MultiBandCompressorAudioProcessor::releaseResources()
@@ -208,6 +175,7 @@ bool MultiBandCompressorAudioProcessor::isBusesLayoutSupported (const BusesLayou
 
 void MultiBandCompressorAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    //=========================VARIABLES====================================================================//
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
@@ -225,42 +193,35 @@ void MultiBandCompressorAudioProcessor::processBlock(AudioSampleBuffer& buffer, 
 
     float sampleRate = getSampleRate();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
+    // In case we have more outputs than inputs, this code clears any output channels that didn't contain input data
+    for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i) { buffer.clear(i, 0, buffer.getNumSamples()); }
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
+    //===========================DSP PROCESSING STARTS HERE====================================================//
 
     // Recalculate the coefficients in case the cutoffs are altered
     // First Left Channel Filters
-    lowBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterL1.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterL1.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // First Right Channel Filters
-    lowBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterR1.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterR1.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // Second Left Channel Filters
-    lowBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterL2.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterL2.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // Second Right Channel Filters
-    lowBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, pLowPassCutoff));
-    lowMidBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, pLowPassCutoff));
-    highMidBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, pHighPassCutoff));
-    highBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, pHighPassCutoff));
+    lowBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, getLowCutoff()));
+    lowMidBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, getLowCutoff()));
+    highMidBandFilterR2.setCoefficients(coefficients.makeLowPass(sampleRate, getHighCutoff()));
+    highBandFilterR2.setCoefficients(coefficients.makeHighPass(sampleRate, getHighCutoff()));
 
     // Apply Filter onto the buffer
     //==============================
@@ -293,17 +254,18 @@ void MultiBandCompressorAudioProcessor::processBlock(AudioSampleBuffer& buffer, 
     highBandFilterR2.processSamples(highOutput.getWritePointer(1), numSamples);
 
     // Set the Compressor Parameters
-    (*lowCompressor).setParameters(pLowRatio, pLowThreshold, pLowAttack, pLowRelease, pLowGain, pKneeWidth);
-    (*midCompressor).setParameters(pMidRatio, pMidThreshold, pMidAttack, pMidRelease, pMidGain, pKneeWidth);
-    (*highCompressor).setParameters(pHighRatio, pHighThreshold, pHighAttack, pHighRelease, pHighGain, pKneeWidth);
+    lowCompressor.setParameters(getLowRatio(), getLowThreshold(), getLowAttack(), getLowRelease(), getLowGain(), getKneeWidth());
+
+    midCompressor.setParameters(getMidRatio(), getMidThreshold(), getMidAttack(), getMidRelease(), getMidGain(), getKneeWidth());
+    highCompressor.setParameters(getHighRatio(), getHighThreshold(), getHighAttack(), getHighRelease(), getHighGain(), getKneeWidth());
 
     // Compress Each Band
-    if (pLowCompressorState)
-        (*lowCompressor).processBlock(lowOutput);
-    if (pMidCompressorState)
-        (*midCompressor).processBlock(midOutput);
-    if (pHighCompressorState)
-        (*highCompressor).processBlock(highOutput);
+    if (getLowCompressorState())
+        lowCompressor.processBlock(lowOutput);
+    if (getMidCompressorState())
+        midCompressor.processBlock(midOutput);
+    if (getHighCompressorState())
+        highCompressor.processBlock(highOutput);
 
     // Sum Each Band
     buffer.clear();
@@ -315,7 +277,44 @@ void MultiBandCompressorAudioProcessor::processBlock(AudioSampleBuffer& buffer, 
     }
 
     // Apply the Overall Gain
-    buffer.applyGain(pOverallGain);
+    buffer.applyGain(getOverallGain());
+}
+
+AudioProcessorValueTreeState::ParameterLayout MultiBandCompressorAudioProcessor::createParameters()
+{
+    // Parameter Vector
+    vector<unique_ptr<RangedAudioParameter>> parameterVector;
+
+    // Low Cutoff and High Cutoff
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowCutOff",     "Low CutOff Value",     150.0f, 600.0f, 450.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highCutOff",    "High CutOff Value",    1000.0f,4000.0f, 2500.0f));
+
+    // Low Frequency Band Parameters
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowThresh",     "Low Band Threshold",   -80.0f, 0.0f,   0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowRatio",      "Low Band Ratio",       1.0f,   10.0f,  1.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowAttack",     "Low Band Attack",      5.0f,   100.0f, 5.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowRelease",    "Low Band Release",     5.0f,   100.0f, 5.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowGain",       "Low Band Gain",        0.0f,   2.0f,   1.0f));
+
+    // Mid Frequency Band Parameters
+    parameterVector.push_back(make_unique<AudioParameterFloat>("midThresh",     "Mid Band Threshold",   -80.0f, 0.0f,   0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("midRatio",      "Mid Band Ratio",       1.0f,   10.0f,  0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("midAttack",     "Mid Band Attack",      5.0f,   100.0f, 0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("midRelease",    "Mid Band Release",     5.0f,   100.0f, 0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("midGain",       "Mid Band Gain",        0.0f,   2.0f,   1.0f));
+
+    // High Frequency Band Parameters
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highThresh",    "High Band Threshold",  -80.0f, 0.0f,   0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highRatio",     "High Band Ratio",      1.0f,   10.0f,  0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highAttack",    "High Band Attack",     5.0f,   100.0f, 0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highRelease",   "High Band Release",    5.0f,   100.0f, 0.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highGain",      "High Band Gain",       0.0f,   2.0f,   1.0f));
+
+    //Knee Width and Overall Gain
+    parameterVector.push_back(make_unique<AudioParameterFloat>("kneeWidth",     "Knee Width",           5.0f, 100.0f,   5.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("overallGain",   "Overall Gain",         0.0f, 2.0f,     1.0f));
+
+    return { parameterVector.begin(), parameterVector.end() };
 }
 
 //==============================================================================

@@ -4,6 +4,9 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
               jucerFormatVersion="1">
   <MAINGROUP id="EzslGP" name="MultiBandCompressor">
+    <GROUP id="{8BC486D0-648B-4810-1DC9-1384A254D1DF}" name="Resources">
+      <FILE id="qMtztY" name="background.png" compile="0" resource="1" file="background.png"/>
+    </GROUP>
     <GROUP id="{E6E8AD2C-6773-A0FA-513A-778A8EDC17EC}" name="Source">
       <FILE id="VtOdEV" name="Compressor.cpp" compile="1" resource="0" file="Source/Compressor.cpp"/>
       <FILE id="PsrvKG" name="Compressor.h" compile="0" resource="0" file="Source/Compressor.h"/>

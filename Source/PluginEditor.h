@@ -24,59 +24,80 @@ public:
     ~MultiBandCompressorAudioProcessorEditor() override;
 
     //==============================================================================
-    void timerCallback() override;
 
     void paint(Graphics&) override;
     void resized() override;
     void sliderValueChanged(Slider* sliderMoved) override;
     void buttonClicked(Button* buttonClicked) override;
+    void timerCallback() override;
+    void buildElements();
+
+    // Crossover Cutoff Values
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> lowCutOffVal;            // Attachment for Low Cutoff Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> highCutOffVal;           // Attachment for High Cutoff Value
+
+    // Low Band Frequency Values
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> lowThresholdVal;         // Attachment for Low Threshold Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> lowRatioVal;             // Attachment for Low Ratio Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> lowAttackVal;            // Attachment for Low Attack Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> lowReleaseVal;           // Attachment for Low Release Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> lowGainVal;              // Attachment for Low Gain Value
+
+    // Mid Band Frequency Values
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> midThresholdVal;         // Attachment for Mid Threshold Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> midRatioVal;             // Attachment for Mid Ratio Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> midAttackVal;            // Attachment for Mid Attack Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> midReleaseVal;           // Attachment for Mid Release Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> midGainVal;              // Attachment for Mid Gain Value
+
+    // High Band Frequency Values
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> highThresholdVal;        // Attachment for High Threshold Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> highRatioVal;            // Attachment for High Ratio Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> highAttackVal;           // Attachment for High Attack Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> highReleaseVal;          // Attachment for High Release Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> highGainVal;             // Attachment for High Gain Value
+
+    // Knee Width and Overall Gain
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> kneeWidthVal;            // Attachment for Knee Width Value
+    unique_ptr<AudioProcessorValueTreeState::SliderAttachment> overallGainVal;          // Attachment for Overall Gain Value
 
 private:
     // Audio Processor Object
     MultiBandCompressorAudioProcessor& audioProcessor;
 
-    //================================================
-    //Appended by Amogh Matt
+    // Crossover Cutoff Sliders
+    Slider sliderLowCutoff;
+    Slider sliderHighCutoff;
+
     // Low Compressor Sliders
-    ScopedPointer<Slider> sliderLowThreshold;
-    ScopedPointer<Slider> sliderLowRatio;
-    ScopedPointer<Slider> sliderLowAttack;
-    ScopedPointer<Slider> sliderLowRelease;
-    ScopedPointer<Slider> sliderLowGain;
+    Slider sliderLowThreshold;
+    Slider sliderLowRatio;
+    Slider sliderLowAttack;
+    Slider sliderLowRelease;
+    Slider sliderLowGain;
+
     // Mid Compressor Sliders
-    ScopedPointer<Slider> sliderMidThreshold;
-    ScopedPointer<Slider> sliderMidRatio;
-    ScopedPointer<Slider> sliderMidAttack;
-    ScopedPointer<Slider> sliderMidRelease;
-    ScopedPointer<Slider> sliderMidGain;
+    Slider sliderMidThreshold;
+    Slider sliderMidRatio;
+    Slider sliderMidAttack;
+    Slider sliderMidRelease;
+    Slider sliderMidGain;
+
     // High Compressor Sliders
-    ScopedPointer<Slider> sliderHighThreshold;
-    ScopedPointer<Slider> sliderHighRatio;
-    ScopedPointer<Slider> sliderHighAttack;
-    ScopedPointer<Slider> sliderHighRelease;
-    ScopedPointer<Slider> sliderHighGain;
+    Slider sliderHighThreshold;
+    Slider sliderHighRatio;
+    Slider sliderHighAttack;
+    Slider sliderHighRelease;
+    Slider sliderHighGain;
 
-    ScopedPointer<Slider> sliderKneeWidth;
-    ScopedPointer<Slider> sliderOverallGain;
-
-    // Labels
-    ScopedPointer<Label> ratioLabel;
-    ScopedPointer<Label> attackLabel;
-    ScopedPointer<Label> releaseLabel;
-    ScopedPointer<Label> gainLabel;
-    ScopedPointer<Label> kneeWidthLabel;
-    ScopedPointer<Label> overallGainLabel;
-    ScopedPointer<Label> thresholdLabel;
-    ScopedPointer<Label> cutoffLabel;
+    // Knee Width and Overall Gain
+    Slider sliderKneeWidth;
+    Slider sliderOverallGain;
 
     // Buttons to Switch the Compressor states to ON/OFF
     ScopedPointer<TextButton> buttonLowCompressorState;
     ScopedPointer<TextButton> buttonMidCompressorState;
     ScopedPointer<TextButton> buttonHighCompressorState;
-
-    // Crossover Cutoff Sliders
-    ScopedPointer<Slider> sliderLowCutoff;
-    ScopedPointer<Slider> sliderHighCutoff;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultiBandCompressorAudioProcessorEditor)
 };

@@ -1,18 +1,10 @@
-//
-//  Compressor.h
-//  MultibandCompressor
-//
-//  Created by Amogh Matt on 03/03/2018.
-//
-//  Based on the compressor example plug-in by Reiss and McPherson
-//  ---
-//
-//  Compressor: dynamic range compression effect
-//  See textbook Chapter 6: Dynamics Processing
-//
-//  Code by Joshua Reiss, Brecht de Man and Andrew McPherson
-//
-//  ---
+/*
+  ==============================================================================
+
+    This file contains the basic functions for a Compressor.
+
+  ==============================================================================
+*/
 
 #ifndef Compressor_h
 #define Compressor_h

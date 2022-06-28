@@ -57,114 +57,168 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    // Appended by Amogh Matt
     //==============================================================================
-    // Setter Functions for each parameter
-
-    void setOverallGain(float overallGain) { pOverallGain = Decibels::decibelsToGain(overallGain); }
-    void setKneeWidth(float kneeWidth) { pKneeWidth = kneeWidth; }
-
-    // Cutoff Parameters
-    void setLowCutoff(float lowCutoff) { pLowPassCutoff = lowCutoff; }
-    void setHighCutoff(float highCutoff) { pHighPassCutoff = highCutoff; }
-
-    // Low Compressor Parameters
-    void setLowGain(float lowGain) { pLowGain = Decibels::decibelsToGain(lowGain); }
-    void setLowThreshold(float lowThreshold) { pLowThreshold = lowThreshold; }
-    void setLowRatio(float lowRatio) { pLowRatio = lowRatio; }
-    void setLowAttack(float lowAttack) { pLowAttack = lowAttack; }
-    void setLowRelease(float lowRelease) { pLowRelease = lowRelease; }
-
-    // Mid Compressor Parameters
-    void setMidGain(float midGain) { pMidGain = Decibels::decibelsToGain(midGain); }
-    void setMidThreshold(float midThreshold) { pMidThreshold = midThreshold; }
-    void setMidRatio(float midRatio) { pMidRatio = midRatio; }
-    void setMidAttack(float midAttack) { pMidAttack = midAttack; }
-    void setMidRelease(float midRelease) { pMidRelease = midRelease; }
-
-    // High Compressor Parameters
-    void setHighGain(float highGain) { pHighGain = Decibels::decibelsToGain(highGain); }
-    void setHighThreshold(float highThreshold) { pHighThreshold = highThreshold; }
-    void setHighRatio(float highRatio) { pHighRatio = highRatio; }
-    void setHighAttack(float highAttack) { pHighAttack = highAttack; }
-    void setHighRelease(float highRelease) { pHighRelease = highRelease; }
-
     // Compressor States
-    void setLowCompressorState(int lowCompressorState) { pLowCompressorState = lowCompressorState; }
-    void setMidCompressorState(int midCompressorState) { pMidCompressorState = midCompressorState; }
-    void setHighCompressorState(int highCompressorState) { pHighCompressorState = highCompressorState; }
+    void setLowCompressorState(int lowCompressorState)      { pLowCompressorState = lowCompressorState; }
+    void setMidCompressorState(int midCompressorState)      { pMidCompressorState = midCompressorState; }
+    void setHighCompressorState(int highCompressorState)    { pHighCompressorState = highCompressorState; }
 
     //==============================================================================
     // Getter Functions for each parameter
 
-    float getOverallGain() { return Decibels::gainToDecibels(pOverallGain); }
-    float getKneeWidth() { return pKneeWidth; }
+    float getOverallGain()
+    {
+        auto pOverallGain = parameters.getRawParameterValue("overallGain")->load();
+        return pOverallGain;
+    }
+    float getKneeWidth()
+    {
+        auto kneeWidth = parameters.getRawParameterValue("kneeWidth")->load();
+        return kneeWidth;
+    }
 
     // Cutoff Parameters
-    float getLowCutoff() { return pLowPassCutoff; }
-    float getHighCutoff() { return pHighPassCutoff; }
+    float getLowCutoff()
+    {
+        auto pLowPassCutoff = parameters.getRawParameterValue("lowCutOff")->load();
+        return pLowPassCutoff;
+    }
+    float getHighCutoff()
+    {
+        auto pHighPassCutoff = parameters.getRawParameterValue("highCutOff")->load();
+        return pHighPassCutoff;
+    }
 
     // Low Compressor Parameters
-    float getLowGain() { return Decibels::gainToDecibels(pLowGain); }
-    float getLowThreshold() { return pLowThreshold; }
-    float getLowRatio() { return pLowRatio; }
-    float getLowAttack() { return pLowAttack; }
-    float getLowRelease() { return pLowRelease; }
+    float getLowGain()
+    {
+        auto pLowGain = parameters.getRawParameterValue("lowGain")->load();
+        return pLowGain;
+    }
+    float getLowThreshold()
+    {
+        auto pLowThreshold = parameters.getRawParameterValue("lowThresh")->load();
+        return pLowThreshold;
+    }
+    float getLowRatio()
+    {
+        auto pLowRatio = parameters.getRawParameterValue("lowRatio")->load();
+        return pLowRatio;
+    }
+    float getLowAttack()
+    {
+        auto pLowAttack = parameters.getRawParameterValue("lowAttack")->load();
+        return pLowAttack;
+    }
+    float getLowRelease()
+    {
+        auto pLowRelease = parameters.getRawParameterValue("lowRelease")->load();
+        return pLowRelease;
+    }
 
     // Mid Compressor Parameters
-    float getMidGain() { return Decibels::gainToDecibels(pMidGain); }
-    float getMidThreshold() { return pMidThreshold; }
-    float getMidRatio() { return pMidRatio; }
-    float getMidAttack() { return pMidAttack; }
-    float getMidRelease() { return pMidRelease; }
+    float getMidGain()
+    {
+        auto pMidGain = parameters.getRawParameterValue("midGain")->load();
+        return pMidGain;
+    }
+    float getMidThreshold()
+    {
+        auto pMidThreshold = parameters.getRawParameterValue("midThresh")->load();
+        return pMidThreshold;
+    }
+    float getMidRatio()
+    {
+        auto pMidRatio = parameters.getRawParameterValue("midRatio")->load();
+        return pMidRatio;
+    }
+    float getMidAttack()
+    {
+        auto pMidAttack = parameters.getRawParameterValue("midAttack")->load();
+        return pMidAttack;
+    }
+    float getMidRelease()
+    {
+        auto pMidRelease = parameters.getRawParameterValue("midRelease")->load();
+        return pMidRelease;
+    }
 
     // High Compressor Parameters
-    float getHighGain() { return Decibels::gainToDecibels(pHighGain); }
-    float getHighThreshold() { return pHighThreshold; }
-    float getHighRatio() { return pHighRatio; }
-    float getHighAttack() { return pHighAttack; }
-    float getHighRelease() { return pHighRelease; }
+    float getHighGain()
+    {
+        auto pHighGain = parameters.getRawParameterValue("highGain")->load();
+        return pHighGain;
+    }
+    float getHighThreshold()
+    {
+        auto pHighThreshold = parameters.getRawParameterValue("highThresh")->load();
+        return pHighThreshold;
+    }
+    float getHighRatio()
+    {
+        auto pHighRatio = parameters.getRawParameterValue("highRatio")->load();
+        return pHighRatio;
+    }
+    float getHighAttack()
+    {
+        auto pHighAttack = parameters.getRawParameterValue("highAttack")->load();
+        return pHighAttack;
+    }
+    float getHighRelease()
+    {
+        auto pHighRelease = parameters.getRawParameterValue("highRelease")->load();
+        return pHighRelease;
+    }
 
     // Compressor States
-    float getLowCompressorState() { return pLowCompressorState; }
-    float getMidCompressorState() { return pMidCompressorState; }
-    float getHighCompressorState() { return pHighCompressorState; }
+    float getLowCompressorState()                           { return pLowCompressorState; }
+    float getMidCompressorState()                           { return pMidCompressorState; }
+    float getHighCompressorState()                          { return pHighCompressorState; }
+
+    AudioProcessorValueTreeState    parameters;
 
 private:
-    //==============================================================================
-    //==============================================================================
-    //Appended by Amogh Matt
+    
+    //============================FILTER DEFINITIONS============================================//
+    // Low Frequency Band Left and Right
+    IIRFilter   lowBandFilterL1,        lowBandFilterL2,        lowBandFilterR1,        lowBandFilterR2;
 
-    // Filter Definition
-    IIRFilter lowBandFilterL1, lowBandFilterL2, lowBandFilterR1, lowBandFilterR2;
-    IIRFilter lowMidBandFilterL1, lowMidBandFilterL2, lowMidBandFilterR1, lowMidBandFilterR2;
-    IIRFilter highMidBandFilterL1, highMidBandFilterL2, highMidBandFilterR1, highMidBandFilterR2;
-    IIRFilter highBandFilterL1, highBandFilterL2, highBandFilterR1, highBandFilterR2;
+    // Mid Frequency Band Left and Right
+    IIRFilter   lowMidBandFilterL1,     lowMidBandFilterL2,     lowMidBandFilterR1,     lowMidBandFilterR2;
+    IIRFilter   highMidBandFilterL1,    highMidBandFilterL2,    highMidBandFilterR1,    highMidBandFilterR2;
+
+    // High Frequency Band Left and Right
+    IIRFilter   highBandFilterL1,       highBandFilterL2,       highBandFilterR1,       highBandFilterR2;
+
+    // Coefficient values
     IIRCoefficients coefficients;
 
     // Compressors
-    ScopedPointer<Compressor> lowCompressor;
-    ScopedPointer<Compressor> midCompressor;
-    ScopedPointer<Compressor> highCompressor;
+    Compressor   lowCompressor;
+    Compressor   midCompressor;
+    Compressor   highCompressor;
 
     // Parameters
-    int numChannels;
-    float pOverallGain;
-    float pKneeWidth;
+    int                         numChannels;
+    float                       pOverallGain;
+    float                       kneeWidth;
 
     // Cutoff Frequencies
-    float pLowPassCutoff;
-    float pHighPassCutoff;
+    float                       pLowPassCutoff;
+    float                       pHighPassCutoff;
 
     // Compressor Parameters
-    float pLowGain, pLowThreshold, pLowRatio, pLowAttack, pLowRelease;
-    float pMidGain, pMidThreshold, pMidRatio, pMidAttack, pMidRelease;
-    float pHighGain, pHighThreshold, pHighRatio, pHighAttack, pHighRelease;
+    float           pLowGain,   pLowThreshold,  pLowRatio,  pLowAttack,     pLowRelease;
+    float           pMidGain,   pMidThreshold,  pMidRatio,  pMidAttack,     pMidRelease;
+    float           pHighGain,  pHighThreshold, pHighRatio, pHighAttack,    pHighRelease;
 
     // Compressor States
-    int pLowCompressorState;
-    int pMidCompressorState;
-    int pHighCompressorState;
+    int             pLowCompressorState;
+    int             pMidCompressorState;
+    int             pHighCompressorState;
+
+    //=====================FUNCTIONS===============================================================//
+    AudioProcessorValueTreeState::ParameterLayout createParameters();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultiBandCompressorAudioProcessor)
 };
