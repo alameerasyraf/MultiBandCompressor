@@ -294,25 +294,25 @@ AudioProcessorValueTreeState::ParameterLayout MultiBandCompressorAudioProcessor:
     parameterVector.push_back(make_unique<AudioParameterFloat>("lowRatio",      "Low Band Ratio",       1.0f,   10.0f,  1.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("lowAttack",     "Low Band Attack",      5.0f,   100.0f, 5.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("lowRelease",    "Low Band Release",     5.0f,   100.0f, 5.0f));
-    parameterVector.push_back(make_unique<AudioParameterFloat>("lowGain",       "Low Band Gain",        0.0f,   2.0f,   1.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("lowGain",       "Low Band Gain",        0.0f,   4.0f,   1.0f));
 
     // Mid Frequency Band Parameters
     parameterVector.push_back(make_unique<AudioParameterFloat>("midThresh",     "Mid Band Threshold",   -80.0f, 0.0f,   0.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("midRatio",      "Mid Band Ratio",       1.0f,   10.0f,  0.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("midAttack",     "Mid Band Attack",      5.0f,   100.0f, 0.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("midRelease",    "Mid Band Release",     5.0f,   100.0f, 0.0f));
-    parameterVector.push_back(make_unique<AudioParameterFloat>("midGain",       "Mid Band Gain",        0.0f,   2.0f,   1.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("midGain",       "Mid Band Gain",        0.0f,   4.0f,   1.0f));
 
     // High Frequency Band Parameters
     parameterVector.push_back(make_unique<AudioParameterFloat>("highThresh",    "High Band Threshold",  -80.0f, 0.0f,   0.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("highRatio",     "High Band Ratio",      1.0f,   10.0f,  0.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("highAttack",    "High Band Attack",     5.0f,   100.0f, 0.0f));
     parameterVector.push_back(make_unique<AudioParameterFloat>("highRelease",   "High Band Release",    5.0f,   100.0f, 0.0f));
-    parameterVector.push_back(make_unique<AudioParameterFloat>("highGain",      "High Band Gain",       0.0f,   2.0f,   1.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("highGain",      "High Band Gain",       0.0f,   4.0f,   1.0f));
 
     //Knee Width and Overall Gain
     parameterVector.push_back(make_unique<AudioParameterFloat>("kneeWidth",     "Knee Width",           5.0f, 100.0f,   5.0f));
-    parameterVector.push_back(make_unique<AudioParameterFloat>("overallGain",   "Overall Gain",         0.0f, 2.0f,     1.0f));
+    parameterVector.push_back(make_unique<AudioParameterFloat>("overallGain",   "Overall Gain",         0.0f, 4.0f,     1.0f));
 
     return { parameterVector.begin(), parameterVector.end() };
 }

@@ -15,22 +15,22 @@ using namespace juce;
 void Compressor::processBlock(AudioSampleBuffer &buffer)
 {
     int bufferSize = buffer.getNumSamples();
-    int numChannels = buffer.getNumChannels(); // number of channels
-    int M = round(numChannels/2); // number of stereo channels
+    int numChannels = buffer.getNumChannels();        // number of channels
+    int M = round(numChannels / 2);              // number of stereo channels
     
     // create blank input buffer to add to
     AudioSampleBuffer inputBuffer(M, bufferSize);
     inputBuffer.clear();
     
-    for (int m = 0 ; m < M ; ++m) //For each channel pair of channels
+    for (int m = 0 ; m < M ; ++m)   //For each channel pair of channels
     {
-        if (compressorState) // check if compressor is active
+        if (compressorState)        // check if compressor is active
         {
             if ( (cThreshold < 0) ) // check if compressor threshold is non-zero
             {
                 // Mix down left-right to analyse the input
-                inputBuffer.addFrom(m,0,buffer,m*2,0,bufferSize,0.5);
-                inputBuffer.addFrom(m,0,buffer,m*2+1,0,bufferSize,0.5);
+                inputBuffer.addFrom(m,0,buffer,m * 2,0,bufferSize,0.5);
+                inputBuffer.addFrom(m,0,buffer,m * 2 + 1,0,bufferSize,0.5);
                 
                 // compression : calculates the control voltage
                 float alphaAttack = exp(-1/(0.001 * cSampleRate * cAttack));
@@ -45,7 +45,7 @@ void Compressor::processBlock(AudioSampleBuffer &buffer)
                     }
                     else
                     {
-                        inputGain =20*log10(fabs(buffer.getWritePointer(m)[i]));
+                        inputGain = 20 * log10(fabs(buffer.getWritePointer(m)[i]));
                     }
                     
                     // Gain computer - apply input/output curve with kneewidth
@@ -67,25 +67,25 @@ void Compressor::processBlock(AudioSampleBuffer &buffer)
                     
                     inputLevel = inputGain - outputGain;
                     
-                    //Ballistics- smoothing of the gain
-                    if (inputLevel>previousOutputLevel)
-                        outputLevel=alphaAttack * previousOutputLevel+(1 - alphaAttack ) * inputLevel;
+                    //Ballistics - smoothing of the gain
+                    if (inputLevel > previousOutputLevel)
+                        outputLevel = alphaAttack * previousOutputLevel + (1 - alphaAttack) * inputLevel;
                     else
-                        outputLevel=alphaRelease* previousOutputLevel+(1 - alphaRelease) * inputLevel;
+                        outputLevel = alphaRelease * previousOutputLevel + (1 - alphaRelease) * inputLevel;
                     
                     //find control voltage
-                    controlVoltage = pow(10,(cMakeUpGain - outputLevel)/20);
-                    previousOutputLevel=outputLevel;
+                    controlVoltage = pow(10,(cMakeUpGain - outputLevel) / 20);
+                    previousOutputLevel = outputLevel;
                     
                     // apply control voltage to both channels
-                    buffer.getWritePointer(2*m+0)[i] *= controlVoltage;
-                    buffer.getWritePointer(2*m+1)[i] *= controlVoltage;
+                    buffer.getWritePointer(2 * m + 0)[i] *= controlVoltage;
+                    buffer.getWritePointer(2 * m + 1)[i] *= controlVoltage;
                 }
             }
             else
             {
                 // if threshold = 0, still apply make up gain.
-                buffer.applyGain(pow(10,(cMakeUpGain)/20));
+                buffer.applyGain(pow(10,(cMakeUpGain) / 20));
             }
         }
     }

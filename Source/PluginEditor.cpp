@@ -18,7 +18,7 @@ MultiBandCompressorAudioProcessorEditor::MultiBandCompressorAudioProcessorEditor
 {
 
     buildElements();
-    setSize(1400, 650);
+    setSize(1400, 670);
     startTimer(100);
 }
 
@@ -36,34 +36,42 @@ void MultiBandCompressorAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawImageAt(background, 0, 0);
 
     //Draw the semi-transparent rectangle around components
-    const Rectangle<float> area(10, 10, 1380, 630);
+    const Rectangle<float> area(10, 10, 1380, 650);
     g.setColour(Colours::ghostwhite);
     g.drawRoundedRectangle(area, 5.0f, 3.0f);
 
     //Draw background for rectangle
     g.setColour(Colours::black);
-    g.setOpacity(0.80f);
+    g.setOpacity(0.75f);
     g.fillRoundedRectangle(area, 5.0f);
 
     // Draw text labels for each component
     // Title
     g.setColour(Colours::white);
     g.setFont(35.0f);
-    g.drawFittedText("Multi-Band Compressor", getWidth() / 2 - 125, 10, 250, 55, Justification::centred, 1);
+    g.drawFittedText("Multi-Band Compressor", getWidth() / 2 - 125, 10, 250, 75, Justification::centred, 1);
 
     // Others
     g.setFont(18.0f);
 
-    // Knee Width and Overall Gain
+    // Low Cut Off and High Cut Off Frequencies
     g.drawText("Low Cutoff",  getWidth() / 2 - 390,    110, 200, 50, Justification::centred, false);
     g.drawText("Frequency",   getWidth() / 2 - 390,    130, 200, 50, Justification::centred, false);
     g.drawText("High Cutoff", getWidth() / 2 + 180,    110, 200, 50, Justification::centred, false);
     g.drawText("Frequency",   getWidth() / 2 + 180,    130, 200, 50, Justification::centred, false);
 
+    // Low Cut Off and High Cut Off Frequencies
+    g.drawText("Freq. Band", 3,    getHeight() / 2 - 110, 200, 50, Justification::centred, false);
+    g.drawText("Threshold",  176,   getHeight() / 2 - 110, 200, 50, Justification::centred, false);
+    g.drawText("Ratio",      354,   getHeight() / 2 - 110, 200, 50, Justification::centred, false);
+    g.drawText("Attack",     535,   getHeight() / 2 - 110, 200, 50, Justification::centred, false);
+    g.drawText("Release",    715,   getHeight() / 2 - 110, 200, 50, Justification::centred, false);
+    g.drawText("Gain",       890,   getHeight() / 2 - 110, 200, 50, Justification::centred, false);
+
     // Knee Width and Overall Gain
     g.drawText("Knee Width",    getWidth() - 300, getHeight() / 2 + 140,     200, 50, Justification::centred, false);
-    g.drawText("Overall Gain",  getWidth() - 300, getHeight() / 2 + 240,    200, 50, Justification::centred, false);
-    
+    g.drawText("Overall Gain",  getWidth() - 300, getHeight() / 2 + 240,     200, 50, Justification::centred, false);
+
 }
 
 void MultiBandCompressorAudioProcessorEditor::resized()
@@ -73,32 +81,32 @@ void MultiBandCompressorAudioProcessorEditor::resized()
     sliderHighCutoff.setBounds  (getWidth() / 2 + 20,   40, 220, 220);
 
     // Compressor State Buttons
-    (*buttonLowCompressorState).setBounds   (50,    getHeight() / 2 - 25,  120, 60);
-    (*buttonMidCompressorState).setBounds   (50,    getHeight() / 2 + 100,  120, 60);
-    (*buttonHighCompressorState).setBounds  (50,    getHeight() / 2 + 225, 120, 60);
+    (*buttonLowCompressorState).setBounds   (50,    getHeight() / 2 - 35,  100, 60);
+    (*buttonMidCompressorState).setBounds   (50,    getHeight() / 2 + 90,  100, 60);
+    (*buttonHighCompressorState).setBounds  (50,    getHeight() / 2 + 215, 100, 60);
 
     // Threshold Sliders
-    sliderLowThreshold.setBounds    (200, getHeight() / 2 - 50,     100, 100);
-    sliderMidThreshold.setBounds    (200, getHeight() / 2 + 75,     100, 100);
-    sliderHighThreshold.setBounds   (200, getHeight() / 2 + 200,    100, 100);
+    sliderLowThreshold.setBounds    (220, getHeight() / 2 - 65,     110, 110);
+    sliderMidThreshold.setBounds    (220, getHeight() / 2 + 60,     110, 110);
+    sliderHighThreshold.setBounds   (220, getHeight() / 2 + 185,    110, 110);
 
-    //// Low Band Knobs
-    //sliderLowRatio.setBounds(100, 260, 80, 64);
-    //sliderLowAttack.setBounds(100, 340, 80, 64);
-    //sliderLowRelease.setBounds(100, 420, 80, 64);
-    //sliderLowGain.setBounds(100, 500, 80, 64);
+    // Low Band Knobs
+    sliderLowRatio.setBounds        (400, getHeight() / 2 - 65, 110, 110);
+    sliderLowAttack.setBounds       (580, getHeight() / 2 - 65, 110, 110);
+    sliderLowRelease.setBounds      (760, getHeight() / 2 - 65, 110, 110);
+    sliderLowGain.setBounds         (940, getHeight() / 2 - 65, 110, 110);
 
-    //// Mid Band Knobs
-    //sliderMidRatio.setBounds(250, 260, 80, 64);
-    //sliderMidAttack.setBounds(250, 340, 80, 64);
-    //sliderMidRelease.setBounds(250, 420, 80, 64);
-    //sliderMidGain.setBounds(250, 500, 80, 64);
+    // Mid Band Knobs
+    sliderMidRatio.setBounds        (400, getHeight() / 2 + 60, 110, 110);
+    sliderMidAttack.setBounds       (580, getHeight() / 2 + 60, 110, 110);
+    sliderMidRelease.setBounds      (760, getHeight() / 2 + 60, 110, 110);
+    sliderMidGain.setBounds         (940, getHeight() / 2 + 60, 110, 110);
 
-    //// High Band Knobs
-    //sliderHighRatio.setBounds(400, 260, 80, 64);
-    //sliderHighAttack.setBounds(400, 340, 80, 64);
-    //sliderHighRelease.setBounds(400, 420, 80, 64);
-    //sliderHighGain.setBounds(400, 500, 80, 64);
+    // High Band Knobs
+    sliderHighRatio.setBounds       (400, getHeight() / 2 + 185, 110, 110);
+    sliderHighAttack.setBounds      (580, getHeight() / 2 + 185, 110, 110);
+    sliderHighRelease.setBounds     (760, getHeight() / 2 + 185, 110, 110);
+    sliderHighGain.setBounds        (940, getHeight() / 2 + 185, 110, 110);
 
     // Knee Width and Overall Gain
     sliderKneeWidth.setBounds       (getWidth() - 295,  getHeight() / 2 - 40,   185, 185);
@@ -161,7 +169,7 @@ void MultiBandCompressorAudioProcessorEditor::buildElements()
     overallGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "overallGain", sliderOverallGain);
     sliderOverallGain.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     sliderOverallGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    sliderOverallGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderOverallGain);
+    sliderOverallGain.setRange(0.0f, 4.0f); addAndMakeVisible(&sliderOverallGain);
 
     // Low Band Knobs
     lowThresholdVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowThresh", sliderLowThreshold);
@@ -187,7 +195,7 @@ void MultiBandCompressorAudioProcessorEditor::buildElements()
     lowGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowGain", sliderLowGain);
     sliderLowGain.setSliderStyle(Slider::SliderStyle::Rotary);
     sliderLowGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    sliderLowGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderLowGain);
+    sliderLowGain.setRange(0.0f, 4.0f); addAndMakeVisible(&sliderLowGain);
 
     // Mid Band Knobs
     midThresholdVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midThresh", sliderMidThreshold);
@@ -213,7 +221,7 @@ void MultiBandCompressorAudioProcessorEditor::buildElements()
     midGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "midGain", sliderMidGain);
     sliderMidGain.setSliderStyle(Slider::SliderStyle::Rotary);
     sliderMidGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    sliderMidGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderMidGain);
+    sliderMidGain.setRange(0.0f, 4.0f); addAndMakeVisible(&sliderMidGain);
 
     // High Band Knobs
     highThresholdVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highThresh", sliderHighThreshold);
@@ -239,7 +247,7 @@ void MultiBandCompressorAudioProcessorEditor::buildElements()
     highGainVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "highGain", sliderHighGain);
     sliderHighGain.setSliderStyle(Slider::SliderStyle::Rotary);
     sliderHighGain.setTextBoxStyle(Slider::TextBoxBelow, false, 70, 20);
-    sliderHighGain.setRange(0.0f, 2.0f); addAndMakeVisible(&sliderHighGain);
+    sliderHighGain.setRange(0.0f, 4.0f); addAndMakeVisible(&sliderHighGain);
 
     // Low Cutoff Frequency Slider
     lowCutOffVal = make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "lowCutOff", sliderLowCutoff);
